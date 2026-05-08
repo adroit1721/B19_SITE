@@ -6,8 +6,8 @@ This guide outlines the steps to deploy the **Backbencher's 19** MERN applicatio
 
 ## 📦 Prerequisites
 
-1.  **GitHub Repository**: Ensure your code is pushed to [github.com/adroit1721/B19_SITE](https://github.com/adroit1721/B19_SITE.git).
-2.  **MongoDB Atlas**: A running MongoDB cluster.
+1.  **GitHub Repository**: [github.com/adroit1721/B19_SITE](https://github.com/adroit1721/B19_SITE.git)
+2.  **MongoDB Atlas**: Your cluster is already whitelisted and seeded.
 3.  **Vercel Account**: Signed up at [vercel.com](https://vercel.com).
 
 ---
@@ -16,49 +16,50 @@ This guide outlines the steps to deploy the **Backbencher's 19** MERN applicatio
 
 1.  Go to the [Vercel Dashboard](https://vercel.com/dashboard) and click **"Add New"** > **"Project"**.
 2.  Import the `B19_SITE` repository.
-3.  **Project Name**: `backbenchers19` (or your preferred name).
-4.  **Framework Preset**: Select **"Other"** (Vercel will detect settings from `vercel.json`).
-5.  **Root Directory**: Leave as `./` (Project Root).
+3.  **Project Name**: `backbenchers19`
+4.  **Framework Preset**: Select **"Other"** (Vercel will use `vercel.json`).
+5.  **Root Directory**: `./`
 
 ---
 
 ## 🔐 Step 2: Environment Variables
 
-In the **"Environment Variables"** section of the Vercel setup, add the following:
+In the **"Environment Variables"** section of the Vercel setup, add the following three variables:
 
-| Key | Value | Description |
-|-----|-------|-------------|
-| `MONGO_URI` | `mongodb+srv://...` | Your MongoDB connection string |
-| `JWT_SECRET` | `your_secret_key` | A strong random string for security |
-| `NODE_ENV` | `production` | Ensures the app runs in production mode |
+| Key | Value |
+|-----|-------|
+| `MONGO_URI` | `mongodb+srv://adroittech8_db_user:Adroit2026@cluster0.kzfpm1l.mongodb.net/?appName=Cluster0` |
+| `JWT_SECRET` | `BackBenchers19_SuperSecret_JWT_Key_2024` |
+| `NODE_ENV` | `production` |
 
 > [!IMPORTANT]
-> Make sure your `MONGO_URI` includes the database name (e.g., `.../backbenchers19?retryWrites=true...`).
+> Make sure to copy the `MONGO_URI` exactly as shown above to ensure the database connects correctly.
 
 ---
 
 ## 🚀 Step 3: Deploy
 
 1.  Click **"Deploy"**.
-2.  Vercel will build the frontend (`client/`) and prepare the backend (`server/`).
-3.  Once finished, you will receive a production URL (e.g., `backbenchers19.vercel.app`).
+2.  Vercel will build the frontend (`client/`) and the backend (`server/`) as configured in `vercel.json`.
+3.  Once finished, click on the **Deployment URL** to visit your live site!
 
 ---
 
-## 🧪 Step 4: Post-Deployment Check
+## 🧪 Step 4: Post-Deployment
 
-1.  **Admin Login**: Visit `your-url.vercel.app/admin/login`.
-2.  **Credentials**: Use your seeded admin credentials (default: `Admin` / `admin123`).
-3.  **Uploads**: Test a logo upload to ensure the `/uploads` route and storage are working (Note: Vercel uses a read-only filesystem except for `/tmp`, so for permanent uploads, consider integrating **Cloudinary** or **AWS S3** in the future).
+1.  **Admin Login**: Visit `your-site.vercel.app/admin/login`
+2.  **Credentials**: 
+    *   **Username**: `Admin`
+    *   **Password**: `admin123`
+3.  **Change Password**: After logging in, go to the **Dashboard** and change your password for security.
 
 ---
 
-## ⚠️ Important Note on File Uploads (Vercel)
+## ⚠️ File Upload Note
 
-Vercel's serverless environment does **not** support permanent local file storage. Files uploaded to `/uploads` will disappear when the serverless function restarts.
+Vercel's filesystem is temporary. Images uploaded via the Admin panel (Gallery/Logo) will be visible immediately but may disappear if the server restarts. 
 
-**Recommended Solution:**
-For a production-ready gallery, you should update the backend to upload images to **Cloudinary** or **S3** instead of the local disk.
+**Recommendation**: For permanent image storage, we can later integrate **Cloudinary** which is the industry standard for Vercel-based MERN apps.
 
 ---
 
