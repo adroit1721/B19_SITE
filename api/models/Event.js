@@ -30,6 +30,7 @@ const EventSchema = new mongoose.Schema(
     formSchema: [FormFieldSchema], // Dynamic form builder fields
     registrationDeadline: { type: Date },
     maxParticipants: { type: Number, default: 0 }, // 0 = unlimited
+    showPublicData: { type: Boolean, default: false }, // Admin toggle for public participant visibility
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
   },
   { timestamps: true }

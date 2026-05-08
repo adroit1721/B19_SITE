@@ -149,10 +149,19 @@ const getRegistrations = async (req, res) => {
 // @access  Public
 const getRecentParticipants = async (req, res) => {
   try {
-    const participants = await Registration.find({ event: req.params.id })
-      .select('name phone registeredAt status')
-      .sort({ createdAt: -1 })
-      .limit(100);
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
+
+    let query = Registration.find({ event: req.params.id }).sort({ createdAt: -1 }).limit(100);
+    
+    // If admin enabled public data, include formData, otherwise just basic info
+    if (event.showPublicData) {
+      query = query.select('name phone registeredAt status formData');
+    } else {
+      query = query.select('name phone registeredAt status');
+    }
+
+    const participants = await query;
     res.json({ success: true, data: participants });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

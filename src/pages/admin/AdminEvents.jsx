@@ -9,8 +9,7 @@ import { Plus, Trash2, Edit, Download, Users, X, Save, ChevronDown, ChevronUp, E
 import toast from 'react-hot-toast';
 
 const EMPTY_EVENT = {
-  title: '', description: '', date: '', venue: '',
-  status: 'upcoming', maxParticipants: 0,
+  status: 'upcoming', maxParticipants: 0, showPublicData: false,
   registrationDeadline: '', formSchema: [],
 };
 
@@ -55,12 +54,20 @@ export default function AdminEvents() {
     dispatch(fetchRegistrations(id));
   };
 
-  const handleDownloadCSV = (id, title) => {
-    const token = localStorage.getItem('bb19_token');
-    const link = document.createElement('a');
-    link.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/events/${id}/registrations/csv`;
-    link.setAttribute('download', `${title}_registrations.csv`);
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  const handleDownloadCSV = async (id, title) => {
+    try {
+      const response = await api.get(`/events/${id}/registrations/csv`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_registrations.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error('Failed to download CSV');
+    }
   };
 
   // Form schema builder helpers
@@ -122,6 +129,18 @@ export default function AdminEvents() {
                   {['upcoming','active','completed','cancelled'].map((s) => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                 </select>
               </div>
+              <div className="flex items-center gap-2 pt-8">
+                <input 
+                  type="checkbox" 
+                  id="showPublicData"
+                  checked={form.showPublicData} 
+                  onChange={(e) => setForm({ ...form, showPublicData: e.target.checked })} 
+                  className="w-5 h-5 rounded border-white/10 bg-white/5 text-neon-cyan focus:ring-neon-cyan accent-neon-cyan"
+                />
+                <label htmlFor="showPublicData" className="text-sm font-medium text-gray-400 cursor-pointer">
+                  Public View Enabled (Participants see full data)
+                </label>
+              </div>
             </div>
 
             {/* Form Schema Builder */}
@@ -151,7 +170,7 @@ export default function AdminEvents() {
                             className="input-neon text-sm min-h-[80px]" 
                             placeholder="Option 1&#10;Option 2&#10;Option 3" 
                             value={field.options?.join('\n') || ''} 
-                            onChange={(e) => updateField(i, 'options', e.target.value.split('\n').map(o => o.trim()).filter(Boolean))} 
+                            onChange={(e) => updateField(i, 'options', e.target.value.split('\n'))} 
                           />
                         </div>
                       )}
@@ -232,23 +251,31 @@ export default function AdminEvents() {
                 </div>
               ) : (
                 viewRegs.map((reg, i) => (
-                  <div key={reg._id} className="flex items-center justify-between p-4 bg-white/3 border border-white/5 rounded-xl hover:border-white/10 transition-all">
-                    <div className="flex items-center gap-4">
-                      <span className="text-gray-600 text-xs w-6 text-center">{i + 1}</span>
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-cyan/20 to-neon-purple/20 flex items-center justify-center text-neon-cyan font-bold text-sm flex-shrink-0">
-                        {reg.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium text-sm">{reg.name}</p>
-                        <div className="flex items-center gap-3 mt-0.5">
-                          <p className="text-gray-500 text-xs flex items-center gap-1"><Phone className="w-3 h-3" /> {reg.phone || 'N/A'}</p>
-                          <p className="text-gray-600 text-xs">· {reg.email}</p>
+                  <div key={reg._id} className="p-5 bg-white/3 border border-white/5 rounded-xl hover:border-white/10 transition-all group">
+                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
+                      <div className="flex items-center gap-4">
+                        <span className="text-gray-600 text-xs w-6 text-center">{i + 1}</span>
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-cyan/20 to-neon-purple/20 flex items-center justify-center text-neon-cyan font-bold text-sm flex-shrink-0">
+                          {reg.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-medium text-sm">{reg.name}</p>
+                          <p className="text-gray-500 text-[10px]">{new Date(reg.registeredAt).toLocaleString()}</p>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right flex flex-col items-end gap-1">
                       <span className={`badge-${reg.status || 'active'} text-[10px]`}>{reg.status || 'Registered'}</span>
-                      <span className="text-gray-700 text-[10px]">{new Date(reg.registeredAt).toLocaleString()}</span>
+                    </div>
+
+                    {/* Full Form Data Summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                      {Object.entries(reg.formData || {}).map(([key, value]) => (
+                        <div key={key} className="flex flex-col">
+                          <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{key.replace(/_/g, ' ')}</span>
+                          <span className="text-sm text-gray-300">
+                            {Array.isArray(value) ? value.join(', ') : (value?.toString() || 'N/A')}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))

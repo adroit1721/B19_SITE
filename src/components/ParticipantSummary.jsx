@@ -41,24 +41,40 @@ export default function ParticipantSummary({ eventId, isAdmin = false }) {
       </div>
       <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2 custom-scrollbar">
         {participants.map((p, i) => (
-          <div key={p._id || i} className="flex items-center justify-between p-3 rounded-xl bg-white/3 border border-white/5 hover:border-white/10 transition-all">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan/20 to-neon-purple/20 flex items-center justify-center text-neon-cyan font-bold text-xs">
-                {p.name?.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <p className="text-white text-sm font-medium">{p.name}</p>
-                {p.phone && (
-                  <p className="text-gray-500 text-[10px] flex items-center gap-1">
-                    <Phone className="w-2 h-2" /> {p.phone}
+          <div key={p._id || i} className="p-4 rounded-xl bg-white/3 border border-white/5 hover:border-white/10 transition-all">
+            <div className="flex items-center justify-between mb-3 pb-3 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan/20 to-neon-purple/20 flex items-center justify-center text-neon-cyan font-bold text-xs">
+                  {p.name?.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium">{p.name}</p>
+                  <p className="text-[10px] text-gray-600 flex items-center gap-1">
+                    <Clock className="w-2.5 h-2.5" />
+                    {new Date(p.registeredAt).toLocaleDateString()}
                   </p>
-                )}
+                </div>
               </div>
+              <span className={`badge-${p.status || 'active'} text-[9px]`}>{p.status || 'Registered'}</span>
             </div>
-            <div className="text-[10px] text-gray-600 flex items-center gap-1">
-              <Clock className="w-2.5 h-2.5" />
-              {new Date(p.registeredAt).toLocaleDateString()}
-            </div>
+
+            {/* Read-only Public View of Form Data */}
+            {p.formData && (
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {Object.entries(p.formData).map(([key, value]) => {
+                  // Skip common internal fields or very long ones if needed
+                  if (['name', 'email', 'phone'].includes(key.toLowerCase())) return null;
+                  return (
+                    <div key={key} className="flex flex-col">
+                      <span className="text-[9px] text-gray-500 uppercase font-bold tracking-tighter truncate">{key.replace(/_/g, ' ')}</span>
+                      <span className="text-[11px] text-gray-400 truncate">
+                        {Array.isArray(value) ? value.join(', ') : (value?.toString() || 'N/A')}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         ))}
       </div>
