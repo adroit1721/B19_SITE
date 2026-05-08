@@ -26,10 +26,10 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor:  ['react', 'react-dom', 'react-router-dom'],
-          redux:   ['@reduxjs/toolkit', 'react-redux'],
-          ui:      ['lucide-react', 'react-hot-toast'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         },
       },
     },
