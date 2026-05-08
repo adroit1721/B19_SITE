@@ -28,7 +28,7 @@ In the **"Environment Variables"** section of the Vercel setup, add the followin
 
 | Key | Value |
 |-----|-------|
-| `MONGO_URI` | `mongodb+srv://adroittech8_db_user:Adroit2026@cluster0.kzfpm1l.mongodb.net/?appName=Cluster0` |
+| `MONGO_URI` | `mongodb+srv://adroittech8_db_user:Adroit2026@cluster0.kzfpm1l.mongodb.net/backbenchers19?retryWrites=true&w=majority` |
 | `JWT_SECRET` | `BackBenchers19_SuperSecret_JWT_Key_2024` |
 | `NODE_ENV` | `production` |
 
