@@ -203,7 +203,7 @@ export default function Home() {
           <div className="relative z-10">
             <GraduationCap className="w-16 h-16 text-neon-cyan mx-auto mb-6 animate-float" />
             <h2 className="font-display font-bold text-3xl md:text-4xl text-white mb-4">
-              Once a <span className="neon-text">Backbencher</span>, Always a Legend
+              Once a <span className="neon-text">backbencher</span>, always a backbencher.
             </h2>
             <p className="text-gray-400 max-w-xl mx-auto mb-8">
               Join our community of SSC Batch-2019 graduates. Stay connected, relive the memories, and celebrate every milestone together.
