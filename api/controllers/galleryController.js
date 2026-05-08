@@ -1,6 +1,4 @@
 const Gallery = require('../models/Gallery');
-const path = require('path');
-const fs = require('fs');
 
 // @desc    Get all gallery items
 // @route   GET /api/gallery
@@ -10,7 +8,6 @@ const getGallery = async (req, res) => {
     const { type } = req.query;
     const filter = { isPublished: true };
     if (type) filter.type = type;
-
     const items = await Gallery.find(filter).sort({ order: 1, createdAt: -1 });
     res.json({ success: true, data: items });
   } catch (error) {
@@ -36,21 +33,18 @@ const getGalleryAdmin = async (req, res) => {
 const createGalleryItem = async (req, res) => {
   try {
     const { title, type, description, tags, event, order } = req.body;
-
     let url = req.body.url || '';
     let thumbnail = req.body.thumbnail || '';
 
     if (req.file) {
-      url = `/uploads/${req.file.filename}`;
+      // Convert buffer to base64 data URL (Vercel has read-only filesystem)
+      const base64 = req.file.buffer.toString('base64');
+      url = `data:${req.file.mimetype};base64,${base64}`;
       thumbnail = url;
     }
 
     const item = await Gallery.create({
-      title,
-      type,
-      url,
-      thumbnail,
-      description,
+      title, type, url, thumbnail, description,
       tags: tags ? (Array.isArray(tags) ? tags : tags.split(',').map((t) => t.trim())) : [],
       event: event || null,
       order: order || 0,
@@ -69,8 +63,7 @@ const createGalleryItem = async (req, res) => {
 const updateGalleryItem = async (req, res) => {
   try {
     const item = await Gallery.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
+      new: true, runValidators: true,
     });
     if (!item) return res.status(404).json({ success: false, message: 'Gallery item not found' });
     res.json({ success: true, data: item });
@@ -86,13 +79,7 @@ const deleteGalleryItem = async (req, res) => {
   try {
     const item = await Gallery.findByIdAndDelete(req.params.id);
     if (!item) return res.status(404).json({ success: false, message: 'Gallery item not found' });
-
-    // Delete file if local upload
-    if (item.url && item.url.startsWith('/uploads/')) {
-      const filePath = path.join(__dirname, '..', 'public', item.url);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    }
-
+    // No local file deletion needed on Vercel (read-only filesystem)
     res.json({ success: true, message: 'Gallery item deleted' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
