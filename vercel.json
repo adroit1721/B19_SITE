@@ -13,24 +13,9 @@
       }
     }
   ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server/server.js"
-    },
-    {
-      "src": "/uploads/(.*)",
-      "dest": "server/server.js"
-    },
-    { "handle": "filesystem" },
-    {
-      "src": "/(.*)",
-      "dest": "/$1",
-      "continue": true
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/server/server.js" },
+    { "source": "/uploads/(.*)", "destination": "/server/server.js" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
