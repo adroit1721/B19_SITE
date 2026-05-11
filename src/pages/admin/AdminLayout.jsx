@@ -5,12 +5,13 @@ import { logout, selectAdmin } from '../../features/auth/authSlice';
 import { fetchSettings, selectSettings } from '../../features/settings/settingsSlice';
 import {
   LayoutDashboard, CalendarDays, Images, BookOpen, Settings,
-  Info, LogOut, Menu, X, GraduationCap, ChevronRight, Palette
+  Info, LogOut, Menu, X, GraduationCap, ChevronRight, Palette, Users
 } from 'lucide-react';
 
 const navItems = [
   { to: '/admin/dashboard',        label: 'Dashboard',      icon: LayoutDashboard },
   { to: '/admin/settings',         label: 'Site Branding',  icon: Palette },
+  { to: '/admin/members',          label: 'Members',        icon: Users },
   { to: '/admin/events',           label: 'Events',         icon: CalendarDays },
   { to: '/admin/gallery',          label: 'Gallery',        icon: Images },
   { to: '/admin/blogs',            label: 'Blogs',          icon: BookOpen },
@@ -37,12 +38,18 @@ export default function AdminLayout() {
       {/* Brand */}
       <div className="p-6 border-b border-white/8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-cyan/20 to-neon-purple/20 border border-neon-cyan/20 flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-cyan/10 to-neon-purple/10 border border-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
             {settings?.logoUrl ? (
-              <img src={settings.logoUrl} alt="Logo" className="w-6 h-6 object-contain" />
-            ) : (
-              <GraduationCap className="w-5 h-5 text-neon-cyan" />
-            )}
+              <img src={settings.logoUrl} alt="Logo" className="w-full h-full object-contain p-1" 
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <div className={`w-full h-full items-center justify-center ${settings?.logoUrl ? 'hidden' : 'flex'}`}>
+              <GraduationCap className="w-6 h-6 text-neon-cyan" />
+            </div>
           </div>
           <div className="min-w-0">
             <p className="font-display font-bold text-white text-sm truncate">{settings?.siteName || "Backbencher's 19"}</p>

@@ -45,8 +45,16 @@ export default function AdminEvents() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (editing) dispatch(updateEvent({ id: editing, data: form }));
-    else         dispatch(createEvent(form));
+    // Clean formSchema options: trim and remove empty lines
+    const cleanForm = {
+      ...form,
+      formSchema: form.formSchema.map(f => ({
+        ...f,
+        options: f.options?.map(o => o.toString().trim()).filter(o => o !== '') || []
+      }))
+    };
+    if (editing) dispatch(updateEvent({ id: editing, data: cleanForm }));
+    else         dispatch(createEvent(cleanForm));
   };
 
   const handleViewReg = (id) => {

@@ -137,8 +137,23 @@ const registerForEvent = async (req, res) => {
 // @access  Private
 const getRegistrations = async (req, res) => {
   try {
-    const registrations = await Registration.find({ event: req.params.id }).sort({ createdAt: -1 });
-    res.json({ success: true, data: registrations, count: registrations.length });
+    const { page = 1, limit = 50 } = req.query;
+    const skip = (page - 1) * limit;
+    
+    const registrations = await Registration.find({ event: req.params.id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+      
+    const total = await Registration.countDocuments({ event: req.params.id });
+    
+    res.json({ 
+      success: true, 
+      data: registrations, 
+      total, 
+      page: Number(page), 
+      totalPages: Math.ceil(total / limit) 
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -152,7 +167,10 @@ const getRecentParticipants = async (req, res) => {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
 
-    let query = Registration.find({ event: req.params.id }).sort({ createdAt: -1 }).limit(100);
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (page - 1) * limit;
+
+    let query = Registration.find({ event: req.params.id }).sort({ createdAt: -1 });
     
     // If admin enabled public data, include formData, otherwise just basic info
     if (event.showPublicData) {
@@ -161,8 +179,16 @@ const getRecentParticipants = async (req, res) => {
       query = query.select('name phone registeredAt status');
     }
 
-    const participants = await query;
-    res.json({ success: true, data: participants });
+    const participants = await query.skip(skip).limit(Number(limit));
+    const total = await Registration.countDocuments({ event: req.params.id });
+
+    res.json({ 
+      success: true, 
+      data: participants, 
+      total, 
+      page: Number(page),
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

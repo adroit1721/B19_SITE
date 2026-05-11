@@ -6,6 +6,7 @@ import blogReducer    from '../features/blogs/blogSlice';
 import footerReducer  from '../features/footer/footerSlice';
 import aboutReducer   from '../features/about/aboutSlice';
 import settingsReducer from '../features/settings/settingsSlice';
+import memberReducer   from '../features/members/memberSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     footer:  footerReducer,
     about:   aboutReducer,
     settings: settingsReducer,
+    members:  memberReducer,
   },
   devTools: import.meta.env.DEV,
 });

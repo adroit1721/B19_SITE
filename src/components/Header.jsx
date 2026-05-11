@@ -10,6 +10,7 @@ const navLinks = [
   { to: '/events', label: 'Events'  },
   { to: '/gallery',label: 'Gallery' },
   { to: '/blogs',  label: 'Blogs'   },
+  { to: '/directory', label: 'Directory' },
 ];
 
 export default function Header() {
@@ -47,19 +48,20 @@ export default function Header() {
             id="header-logo"
             className="flex items-center gap-3 group"
           >
-            <div className="relative">
-              <img
-                src={settings?.logoUrl || "/images/logo.png"}
-                alt={settings?.siteName || "Backbencher's 19 Logo"}
-                className="h-10 w-10 object-contain rounded-xl"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
-                }}
-              />
-              {/* Fallback icon */}
+            <div className="relative flex items-center justify-center">
+              {settings?.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt={settings.siteName}
+                  className="h-10 w-10 object-contain rounded-xl"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
               <div
-                className="h-10 w-10 rounded-xl bg-gradient-to-br from-neon-cyan to-neon-purple items-center justify-center hidden"
+                className={`h-10 w-10 rounded-xl bg-gradient-to-br from-neon-cyan to-neon-purple items-center justify-center ${settings?.logoUrl ? 'hidden' : 'flex'}`}
                 aria-hidden="true"
               >
                 <GraduationCap className="h-6 w-6 text-dark-950" />
@@ -69,9 +71,9 @@ export default function Header() {
 
             <div className="flex flex-col leading-tight">
               <span className="font-display font-bold text-white text-lg tracking-tight group-hover:neon-text transition-all duration-300">
-                {settings?.siteName?.split(' ')[0] || "Backbencher's"} <span className="neon-text">{settings?.siteName?.split(' ')[1] || "19"}</span>
+                {settings?.siteName || "Backbencher's 19"}
               </span>
-              <span className="text-gray-500 text-xs font-mono tracking-widest">
+              <span className="text-gray-500 text-[10px] font-mono tracking-[0.2em] uppercase">
                 SSC BATCH-2019
               </span>
             </div>

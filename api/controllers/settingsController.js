@@ -25,10 +25,13 @@ const updateSettings = async (req, res) => {
       settings = new Settings({});
     }
     
-    const { siteName, logoUrl, faviconUrl } = req.body;
-    if (siteName) settings.siteName = siteName;
-    if (logoUrl) settings.logoUrl = logoUrl;
-    if (faviconUrl) settings.faviconUrl = faviconUrl;
+    // Update fields
+    const fields = ['siteName', 'logoUrl', 'faviconUrl', 'isSitePublic', 'maintenanceMessage'];
+    fields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        settings[field] = req.body[field];
+      }
+    });
     
     settings.updatedBy = req.admin._id;
     await settings.save();

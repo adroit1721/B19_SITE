@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import { getMe, selectIsAuthenticated } from './features/auth/authSlice';
@@ -25,7 +25,11 @@ import AdminBlogs    from './pages/admin/AdminBlogs';
 import AdminFooter   from './pages/admin/AdminFooter';
 import AdminAbout    from './pages/admin/AdminAbout';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminMembers from './pages/admin/AdminMembers';
 
+import MemberDirectory from './pages/MemberDirectory';
+import MemberRegistration from './pages/MemberRegistration';
+import Maintenance from './pages/Maintenance';
 import { fetchSettings } from './features/settings/settingsSlice';
 
 // Protected Route Guard
@@ -48,6 +52,7 @@ function PublicLayout({ children }) {
 
 export default function App() {
   const dispatch = useDispatch();
+  const location = useLocation();
   const settings = useSelector((s) => s.settings.data);
   const token    = localStorage.getItem('bb19_token');
 
@@ -65,6 +70,12 @@ export default function App() {
       if (favicon) favicon.href = settings.faviconUrl || '/images/favicon.ico';
     }
   }, [settings]);
+
+  const isMaintenance = settings && !settings.isSitePublic && !location.pathname.startsWith('/admin');
+
+  if (isMaintenance) {
+    return <Maintenance message={settings.maintenanceMessage} siteName={settings.siteName} />;
+  }
 
   return (
     <>
@@ -91,6 +102,8 @@ export default function App() {
         <Route path="/events"  element={<PublicLayout><Events /></PublicLayout>} />
         <Route path="/gallery" element={<PublicLayout><Gallery /></PublicLayout>} />
         <Route path="/blogs"   element={<PublicLayout><Blogs /></PublicLayout>} />
+        <Route path="/directory" element={<PublicLayout><MemberDirectory /></PublicLayout>} />
+        <Route path="/register"  element={<PublicLayout><MemberRegistration /></PublicLayout>} />
 
         {/* ── Admin Routes ──────────────────────────────────────── */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -107,6 +120,7 @@ export default function App() {
           <Route path="footer"    element={<AdminFooter />} />
           <Route path="about"     element={<AdminAbout />} />
           <Route path="settings"  element={<AdminSettings />} />
+          <Route path="members"   element={<AdminMembers />} />
         </Route>
 
         {/* ── 404 Fallback ──────────────────────────────────────── */}

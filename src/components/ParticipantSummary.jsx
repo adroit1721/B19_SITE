@@ -5,24 +5,48 @@ import { Users, Phone, Clock } from 'lucide-react';
 export default function ParticipantSummary({ eventId, isAdmin = false }) {
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+
+  const fetchParticipants = async (pageNum = 1) => {
+    try {
+      if (pageNum === 1) setLoading(true);
+      else setLoadingMore(true);
+
+      const endpoint = isAdmin 
+        ? `/events/${eventId}/registrations` 
+        : `/events/${eventId}/participants`;
+        
+      const { data } = await api.get(`${endpoint}?page=${pageNum}&limit=20`);
+      
+      if (pageNum === 1) {
+        setParticipants(data.data);
+      } else {
+        setParticipants(prev => [...prev, ...data.data]);
+      }
+      
+      setHasMore(data.page < data.totalPages);
+    } catch (err) {
+      console.error('Failed to fetch participants', err);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchParticipants = async () => {
-      try {
-        const endpoint = isAdmin 
-          ? `/events/${eventId}/registrations` 
-          : `/events/${eventId}/participants`;
-        const { data } = await api.get(endpoint);
-        setParticipants(data.data);
-      } catch (err) {
-        console.error('Failed to fetch participants', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (eventId) fetchParticipants();
+    if (eventId) {
+      setPage(1);
+      fetchParticipants(1);
+    }
   }, [eventId, isAdmin]);
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchParticipants(nextPage);
+  };
 
   if (loading) return <div className="flex justify-center p-4"><div className="spinner w-6 h-6" /></div>;
 
@@ -78,6 +102,18 @@ export default function ParticipantSummary({ eventId, isAdmin = false }) {
           </div>
         ))}
       </div>
+      
+      {hasMore && (
+        <div className="pt-2 text-center">
+          <button 
+            onClick={handleLoadMore} 
+            disabled={loadingMore}
+            className="text-[10px] font-bold text-neon-cyan hover:underline uppercase tracking-widest disabled:opacity-50"
+          >
+            {loadingMore ? 'Loading...' : 'Load More Participants'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

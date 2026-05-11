@@ -37,10 +37,9 @@ const createGalleryItem = async (req, res) => {
     let thumbnail = req.body.thumbnail || '';
 
     if (req.file) {
-      // Convert buffer to base64 data URL (Vercel has read-only filesystem)
-      const base64 = req.file.buffer.toString('base64');
-      url = `data:${req.file.mimetype};base64,${base64}`;
-      thumbnail = url;
+      // req.file.path contains the Cloudinary secure URL
+      url = req.file.path || req.file.secure_url;
+      thumbnail = url; // Cloudinary automatically handles thumbnails if needed, but we can use the main URL for now
     }
 
     const item = await Gallery.create({

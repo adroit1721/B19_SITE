@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const connectDB = require('./config/db');
 
@@ -24,10 +25,22 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+const checkSiteStatus = require('./middleware/siteStatus');
+app.use(checkSiteStatus);
+
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+
+// ─── Root Route ───────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: "Welcome to Backbencher's 19 API",
+    documentation: "/api/health"
+  });
+});
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth', require('./routes/auth'));
@@ -38,6 +51,7 @@ app.use('/api/footer', require('./routes/footer'));
 app.use('/api/about', require('./routes/about'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/members', require('./routes/members'));
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const { storage } = require('../config/cloudinary');
 const {
   getGallery,
   getGalleryAdmin,
@@ -10,11 +11,7 @@ const {
 } = require('../controllers/galleryController');
 const { protect } = require('../middleware/auth');
 
-// Use memory storage - Vercel filesystem is read-only
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
-});
+const upload = multer({ storage });
 
 // Public routes
 router.get('/', getGallery);
