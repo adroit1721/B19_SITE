@@ -63,7 +63,9 @@ export default function AdminMembers() {
     const fd = new FormData();
     fd.append('file', file);
     try {
-      const { data } = await api.post('/upload', fd);
+      const { data } = await api.post('/upload', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       setForm({ ...form, photoUrl: data.url });
       toast.success('Photo uploaded!');
     } catch (err) { toast.error('Upload failed'); }
